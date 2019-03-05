@@ -5,11 +5,13 @@ import (
 	"encoding/gob"
 )
 
+// Schema specifies how an object in a store is to be marshaled and unmarshaled.
 type Schema interface {
 	Marshal(o interface{}) ([]byte, error)
 	Unmarshal(b []byte, o interface{}) error
 }
 
+// GobSchema is a generic schema for storing any kind of Go type in a store.
 type GobSchema struct {
 	object interface{}
 }
