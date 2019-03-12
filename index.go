@@ -28,7 +28,7 @@ func readIndex(name string) (index, error) {
 
 		err = json.Unmarshal(b, &i)
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 	} else {
 		i = make(index)
@@ -36,35 +36,53 @@ func readIndex(name string) (index, error) {
 	return i, nil
 }
 
-func writeIndex(name string, id identifier, m meta, files map[string]*os.File) error {
-	var i index
-	if _, err := os.Stat(name); err == nil {
-		f, err := os.OpenFile(name, os.O_RDWR, 0664)
-		if err != nil {
-			return err
-		}
-		err = json.NewDecoder(f).Decode(&i)
-		if err != nil {
-			return err
-		}
-		i[id] = m
-	} else {
+func writeIndex(name string, id identifier, m meta) error {
+	var (
+		i index
+		f *os.File
+	)
+
+	var err error
+	f, err = os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0664)
+	if err != nil {
+		return err
+	}
+
+	if info, err := f.Stat(); err == nil && info.Size() == 0 {
 		i = make(index)
+	} else {
+		b, err := ioutil.ReadAll(f)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(b, &i)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	i[id] = m
-
 	b, err := json.Marshal(i)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(name, b, 0664)
+	err = f.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = f.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	_, err = f.Write(b)
+	return err
 }
 
 // Put commits the metadata of an identifier to an index.
 func (s *Store) PutMeta(id identifier, m meta) error {
-	return writeIndex(path.Join(s.dir, s.index[len(s.index)-1]), id, m, s.files)
+	return writeIndex(path.Join(s.dir, s.index[len(s.index)-1]), id, m)
 }
 
 // Get retrieves the metadata of an identifier from the index it is stored in.

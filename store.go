@@ -111,6 +111,7 @@ func (s *Store) loadIdentifiers() error {
 			s.identifiers[id] = true
 		}
 	}
+
 	return nil
 }
 
