@@ -3,6 +3,7 @@ package ghost
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-errors/errors"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -161,7 +162,6 @@ func Open(dir string, schema Schema, options ...StoreOption) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(len(s.identifiers))
 
 	return s, nil
 }
@@ -256,6 +256,19 @@ func (s *Store) Put(id string, o interface{}) error {
 	return nil
 }
 
+func (s *Store) PutAll(ids []string, o []interface{}) error {
+	if len(ids) != len(o) {
+		return errors.Errorf("when putting many objects, slices must be of same length")
+	}
+	for i := 0; i < len(ids); i++ {
+		err := s.Put(ids[i], o[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Get retrieves an object with the specified id, if one exists.
 func (s *Store) Get(id string, o interface{}) error {
 
@@ -287,6 +300,10 @@ func (s *Store) Get(id string, o interface{}) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	if m == nil {
+		return nil
 	}
 
 	storePath := path.Join(s.dir, s.store[m.Index])
