@@ -173,6 +173,7 @@ func (s *Store) Flush() error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	var info info
 
