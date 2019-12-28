@@ -215,7 +215,7 @@ func (s *Store) Put(id string, o interface{}) error {
 	} else {
 		// Open the Store for appending.
 		var err error
-		f, err = os.OpenFile(idxPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0664)
+		f, err = os.OpenFile(idxPath, os.O_RDWR|os.O_CREATE, 0664)
 		if err != nil {
 			return err
 		}
@@ -314,7 +314,7 @@ func (s *Store) Get(id string, o interface{}) error {
 	} else {
 		// Open the Store for appending.
 		var err error
-		f, err = os.OpenFile(storePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0664)
+		f, err = os.OpenFile(storePath, os.O_RDWR|os.O_CREATE, 0664)
 		if err != nil {
 			return err
 		}
