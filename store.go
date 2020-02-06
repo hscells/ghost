@@ -118,7 +118,7 @@ func (s *Store) loadIdentifiers() error {
 
 // Open loads an object store if one exists, or creates one if one is not found.
 func Open(dir string, schema Schema, options ...StoreOption) (*Store, error) {
-	err := os.MkdirAll(dir, 0774)
+	err := os.MkdirAll(dir, 0777)
 	if err != nil {
 		return nil, err
 	}
